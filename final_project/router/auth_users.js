@@ -26,48 +26,59 @@ if (validusers.length > 0) {
 
 }
 
-//only registered users can login
-regd_users.post("/login", (req,res) => {
+/// Only registered users can login
+regd_users.post("/login", (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
     // Check if username or password is missing
     if (!username || !password) {
-        return res.status(404).json({ message: "Error logging in" });
+        return res.status(400).json({ message: "Username or password missing" });
     }
 
     // Authenticate user
     if (authenticatedUser(username, password)) {
-        // Generate JWT access token
-        let accessToken = jwt.sign({
-            data: password
-        }, 'access', { expiresIn: 60 });
+        // Generate JWT access token with username (not password)
+        let accessToken = jwt.sign({ username }, 'access', { expiresIn: 60 });
 
-        // Store access token and username in session
-        req.session.authorization = {
-            accessToken, username
-        }
+        // Store token and username in session
+        req.session.authorization = { accessToken, username };
+
         return res.status(200).send("User successfully logged in");
     } else {
-        return res.status(208).json({ message: "Invalid Login. Check username and password" });
+        return res.status(401).json({ message: "Invalid login. Check username and password" });
     }
 });
 
-// Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-
-/*// Middleware to authenticate requests to "/friends" endpoint
-app.use("/friends", function auth(req, res, next) {
-    // Check if user is logged in and has valid access token
     if (req.session.authorization) {
         let token = req.session.authorization['accessToken'];
 
-        // Verify JWT token
         jwt.verify(token, "access", (err, user) => {
             if (!err) {
-                req.user = user;
-                next(); // Proceed to the next middleware
+                const username = user.username; // Get the username from JWT
+                const isbn = req.params.isbn;
+                const review = req.body.review;
+
+                const book = books[isbn];
+
+                if (!book) {
+                    return res.status(404).json({ message: "Book not found" });
+                }
+
+                if (!review) {
+                    return res.status(400).json({ message: "Review text missing" });
+                }
+
+                // Initialize reviews object if missing
+                if (!book.reviews) {
+                    book.reviews = {};
+                }
+
+                // Add or update the review for this user
+                book.reviews[username] = review;
+
+                return res.send("Review added/updated successfully.");
             } else {
                 return res.status(403).json({ message: "User not authenticated" });
             }
@@ -75,38 +86,6 @@ app.use("/friends", function auth(req, res, next) {
     } else {
         return res.status(403).json({ message: "User not logged in" });
     }
-}); */
-
-
-
-/** PUT request: Update the details of a friend with email id
-router.put("/:email", function(req, res) {
-    // Extract email parameter from request URL
-    const email = req.params.email;
-    let friend = friends[email];  // Retrieve friend object associated with email
-
-    if (friend) {  // Check if friend exists
-        let DOB = req.body.DOB;
-        // Add similarly for firstName
-        // Add similarly for lastName
-
-        // Update DOB if provided in request body
-        if (DOB) {
-            friend["DOB"] = DOB;
-        }
-        // Add similarly for firstName
-        // Add similarly for lastName
-
-        friends[email] = friend;  // Update friend details in 'friends' object
-        res.send(`Friend with the email ${email} updated.`);
-    } else {
-        // Respond if friend with specified email is not found
-        res.send("Unable to find friend!");
-    }
-});
- */
-
-  return res.status(300).json({message: "Yet to be implemented"});
 });
 
 module.exports.authenticated = regd_users;
