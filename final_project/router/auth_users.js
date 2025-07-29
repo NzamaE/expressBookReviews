@@ -56,6 +56,56 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
+
+/*// Middleware to authenticate requests to "/friends" endpoint
+app.use("/friends", function auth(req, res, next) {
+    // Check if user is logged in and has valid access token
+    if (req.session.authorization) {
+        let token = req.session.authorization['accessToken'];
+
+        // Verify JWT token
+        jwt.verify(token, "access", (err, user) => {
+            if (!err) {
+                req.user = user;
+                next(); // Proceed to the next middleware
+            } else {
+                return res.status(403).json({ message: "User not authenticated" });
+            }
+        });
+    } else {
+        return res.status(403).json({ message: "User not logged in" });
+    }
+}); */
+
+
+
+/** PUT request: Update the details of a friend with email id
+router.put("/:email", function(req, res) {
+    // Extract email parameter from request URL
+    const email = req.params.email;
+    let friend = friends[email];  // Retrieve friend object associated with email
+
+    if (friend) {  // Check if friend exists
+        let DOB = req.body.DOB;
+        // Add similarly for firstName
+        // Add similarly for lastName
+
+        // Update DOB if provided in request body
+        if (DOB) {
+            friend["DOB"] = DOB;
+        }
+        // Add similarly for firstName
+        // Add similarly for lastName
+
+        friends[email] = friend;  // Update friend details in 'friends' object
+        res.send(`Friend with the email ${email} updated.`);
+    } else {
+        // Respond if friend with specified email is not found
+        res.send("Unable to find friend!");
+    }
+});
+ */
+
   return res.status(300).json({message: "Yet to be implemented"});
 });
 
