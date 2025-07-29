@@ -39,7 +39,7 @@ regd_users.post("/login", (req, res) => {
     // Authenticate user
     if (authenticatedUser(username, password)) {
         // Generate JWT access token with username (not password)
-        let accessToken = jwt.sign({ username }, 'access', { expiresIn: 60 });
+        let accessToken = jwt.sign({ username }, 'access', { expiresIn: 60});
 
         // Store token and username in session
         req.session.authorization = { accessToken, username };
